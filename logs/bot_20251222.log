@@ -1,0 +1,84 @@
+2025-12-22 23:15:17,856 - INFO - discord.client - logging in using static token
+2025-12-22 23:15:18,766 - INFO - bot - Loaded extension: cogs.carousel
+2025-12-22 23:15:19,218 - INFO - bot - Synced application commands globally
+2025-12-22 23:15:19,935 - INFO - discord.gateway - Shard ID None has connected to Gateway (Session ID: b7676118f1fb8a498858fcd8d5ad1d90).
+2025-12-22 23:15:21,950 - INFO - bot - Logged in as ZxP Maid#3547 (ID: 1452693730296332478)
+2025-12-22 23:21:43,060 - ERROR - asyncio - Task exception was never retrieved
+future: <Task finished name='discord-ui-view-timeout-5f23d34d9a019a70991a31d20011fbf5' coro=<CarouselView.on_timeout() done, defined at D:\MiniProject\ZxPMaidBot\cogs\carousel.py:61> exception=AttributeError("'InteractionCallbackResponse' object has no attribute 'edit'")>
+Traceback (most recent call last):
+  File "D:\MiniProject\ZxPMaidBot\cogs\carousel.py", line 69, in on_timeout
+    await self.message.edit(view=self)
+          ^^^^^^^^^^^^^^^^^
+AttributeError: 'InteractionCallbackResponse' object has no attribute 'edit'
+2025-12-22 23:21:48,211 - ERROR - asyncio - Task exception was never retrieved
+future: <Task finished name='Task-11' coro=<CarouselView._auto_advance() done, defined at D:\MiniProject\ZxPMaidBot\cogs\carousel.py:47> exception=AttributeError("'InteractionCallbackResponse' object has no attribute 'edit'")>
+Traceback (most recent call last):
+  File "D:\MiniProject\ZxPMaidBot\cogs\carousel.py", line 57, in _auto_advance
+    await self.message.edit(embed=embed, view=self)
+          ^^^^^^^^^^^^^^^^^
+AttributeError: 'InteractionCallbackResponse' object has no attribute 'edit'
+2025-12-22 23:21:49,284 - INFO - discord.client - logging in using static token
+2025-12-22 23:21:50,111 - INFO - bot - Loaded extension: cogs.carousel
+2025-12-22 23:21:50,122 - INFO - bot - Loaded extension: cogs.greetings
+2025-12-22 23:21:50,582 - INFO - bot - Synced application commands globally
+2025-12-22 23:21:51,311 - INFO - discord.gateway - Shard ID None has connected to Gateway (Session ID: d73b8ab0003386d7e75ecc82bf11da94).
+2025-12-22 23:21:53,326 - INFO - bot - Logged in as ZxP Maid#3547 (ID: 1452693730296332478)
+2025-12-22 23:23:19,877 - INFO - discord.client - logging in using static token
+2025-12-22 23:23:20,998 - INFO - bot - Loaded extension: cogs.carousel
+2025-12-22 23:23:21,001 - INFO - bot - Loaded extension: cogs.greetings
+2025-12-22 23:23:21,546 - INFO - bot - Synced application commands globally
+2025-12-22 23:23:22,207 - INFO - discord.gateway - Shard ID None has connected to Gateway (Session ID: ccbcaca67f86f9512751ac049088aa67).
+2025-12-22 23:23:24,216 - INFO - bot - Logged in as ZxP Maid#3547 (ID: 1452693730296332478)
+2025-12-22 23:25:13,670 - ERROR - asyncio - Task exception was never retrieved
+future: <Task finished name='Task-12' coro=<CarouselView._auto_advance() done, defined at D:\MiniProject\ZxPMaidBot\cogs\carousel.py:47> exception=AttributeError("'InteractionCallbackResponse' object has no attribute 'edit'")>
+Traceback (most recent call last):
+  File "D:\MiniProject\ZxPMaidBot\cogs\carousel.py", line 57, in _auto_advance
+AttributeError: 'InteractionCallbackResponse' object has no attribute 'edit'
+2025-12-22 23:25:14,662 - INFO - discord.client - logging in using static token
+2025-12-22 23:25:15,565 - INFO - bot - Loaded extension: cogs.carousel
+2025-12-22 23:25:15,572 - INFO - bot - Loaded extension: cogs.greetings
+2025-12-22 23:25:16,041 - INFO - bot - Synced application commands globally
+2025-12-22 23:25:17,439 - INFO - discord.gateway - Shard ID None has connected to Gateway (Session ID: 4f43fd4087f0a64d90edb751c9527b39).
+2025-12-22 23:25:19,443 - INFO - bot - Logged in as ZxP Maid#3547 (ID: 1452693730296332478)
+2025-12-22 23:26:45,309 - INFO - discord.client - logging in using static token
+2025-12-22 23:26:46,067 - INFO - bot - Loaded extension: cogs.carousel
+2025-12-22 23:26:46,072 - INFO - bot - Loaded extension: cogs.greetings
+2025-12-22 23:26:46,527 - INFO - bot - Synced application commands globally
+2025-12-22 23:26:47,334 - INFO - discord.gateway - Shard ID None has connected to Gateway (Session ID: 14dc80414c692ac7d759b63dae861516).
+2025-12-22 23:26:49,347 - INFO - bot - Logged in as ZxP Maid#3547 (ID: 1452693730296332478)
+2025-12-22 23:27:07,551 - ERROR - discord.ext.commands.bot - Ignoring exception in command None
+discord.ext.commands.errors.CommandNotFound: Command "nextnights" is not found
+2025-12-22 23:27:30,981 - INFO - discord.client - logging in using static token
+2025-12-22 23:27:31,811 - INFO - bot - Loaded extension: cogs.carousel
+2025-12-22 23:27:31,817 - INFO - bot - Loaded extension: cogs.greetings
+2025-12-22 23:27:33,031 - INFO - bot - Synced application commands globally
+2025-12-22 23:27:33,790 - INFO - discord.gateway - Shard ID None has connected to Gateway (Session ID: 1879b047656dcccd0ab4f37af554ea23).
+2025-12-22 23:27:35,797 - INFO - bot - Logged in as ZxP Maid#3547 (ID: 1452693730296332478)
+2025-12-22 23:33:18,322 - ERROR - asyncio - Task exception was never retrieved
+future: <Task finished name='Task-15' coro=<CarouselView._auto_advance() done, defined at D:\MiniProject\ZxPMaidBot\cogs\carousel.py:47> exception=AttributeError("'InteractionCallbackResponse' object has no attribute 'edit'")>
+Traceback (most recent call last):
+  File "D:\MiniProject\ZxPMaidBot\cogs\carousel.py", line 57, in _auto_advance
+AttributeError: 'InteractionCallbackResponse' object has no attribute 'edit'
+2025-12-22 23:33:19,778 - INFO - discord.client - logging in using static token
+2025-12-22 23:33:20,602 - INFO - bot - Loaded extension: cogs.carousel
+2025-12-22 23:33:20,606 - INFO - bot - Loaded extension: cogs.greetings
+2025-12-22 23:33:20,612 - INFO - bot - Loaded extension: cogs.memory
+2025-12-22 23:33:21,135 - INFO - bot - Synced application commands globally
+2025-12-22 23:33:21,862 - INFO - discord.gateway - Shard ID None has connected to Gateway (Session ID: 71b5b1bfab0cd7a4bfa955f8331fae19).
+2025-12-22 23:33:23,877 - INFO - bot - Logged in as ZxP Maid#3547 (ID: 1452693730296332478)
+2025-12-22 23:36:26,005 - INFO - discord.client - logging in using static token
+2025-12-22 23:36:27,177 - INFO - bot - Loaded extension: cogs.carousel
+2025-12-22 23:36:27,185 - INFO - bot - Loaded extension: cogs.greetings
+2025-12-22 23:36:27,196 - INFO - bot - Loaded extension: cogs.memory
+2025-12-22 23:36:27,695 - INFO - bot - Synced application commands globally
+2025-12-22 23:36:28,932 - INFO - discord.gateway - Shard ID None has connected to Gateway (Session ID: 113ca4d4cc527fe83ac5f719d1d5504b).
+2025-12-22 23:36:30,949 - INFO - bot - Logged in as ZxP Maid#3547 (ID: 1452693730296332478)
+2025-12-22 23:36:38,906 - ERROR - discord.ext.commands.bot - Ignoring exception in command None
+discord.ext.commands.errors.CommandNotFound: Command "memorypannel" is not found
+2025-12-22 23:38:13,044 - INFO - discord.client - logging in using static token
+2025-12-22 23:38:14,235 - INFO - bot - Loaded extension: cogs.carousel
+2025-12-22 23:38:14,239 - INFO - bot - Loaded extension: cogs.greetings
+2025-12-22 23:38:14,245 - INFO - bot - Loaded extension: cogs.memory
+2025-12-22 23:38:14,706 - INFO - bot - Synced application commands globally
+2025-12-22 23:38:15,594 - INFO - discord.gateway - Shard ID None has connected to Gateway (Session ID: 4b8e93efde992279c06e9b5c6dcd2dab).
+2025-12-22 23:38:17,611 - INFO - bot - Logged in as ZxP Maid#3547 (ID: 1452693730296332478)
