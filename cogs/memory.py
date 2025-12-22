@@ -16,75 +16,6 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-class MemoryPanelView(discord.ui.View):
-    def __init__(self, cog: "Memory"):
-        super().__init__(timeout=300)  # 5 minutes
-        self.cog = cog
-
-    @discord.ui.button(label="Add", style=discord.ButtonStyle.success)
-    async def add_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        """
-        Ask user for a memory via modal or follow-up message.
-        For simplicity here, we ask user to type their memory in the chat.
-        """
-        await interaction.response.send_message(
-            "Please type your memory in the chat within 60 seconds:",
-            ephemeral=True
-        )
-
-        def check(m: discord.Message):
-            return (
-                m.author == interaction.user
-                and m.channel == interaction.channel
-            )
-
-        try:
-            msg = await self.cog.bot.wait_for("message", timeout=60.0, check=check)
-        except Exception:
-            await interaction.followup.send("Timed out waiting for your memory.", ephemeral=True)
-            return
-
-        ctx = await self.cog.bot.get_context(msg)
-        # Reuse the existing add_memory logic
-        await self.cog.add_memory(ctx, text=msg.content)
-
-    @discord.ui.button(label="📃List", style=discord.ButtonStyle.primary)
-    async def list_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        """
-        Show latest memories (same as !listmemory).
-        """
-        # Build a fake ctx-like object: we just need channel/guild
-        class DummyCtx:
-            def __init__(self, interaction: discord.Interaction):
-                self.guild = interaction.guild
-                self.channel = interaction.channel
-
-            async def send(self, *args, **kwargs):
-                # Send into channel, public
-                return await interaction.channel.send(*args, **kwargs)
-
-        dummy_ctx = DummyCtx(interaction)
-        await self.cog.list_memory(dummy_ctx, count=5)
-        await interaction.response.defer()  # acknowledge button
-
-    @discord.ui.button(label="🎲Random", style=discord.ButtonStyle.secondary)
-    async def random_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        """
-        Show one random memory (same as !randommemory).
-        """
-        class DummyCtx:
-            def __init__(self, interaction: discord.Interaction):
-                self.guild = interaction.guild
-                self.channel = interaction.channel
-
-            async def send(self, *args, **kwargs):
-                return await interaction.channel.send(*args, **kwargs)
-
-        dummy_ctx = DummyCtx(interaction)
-        await self.cog.random_memory(dummy_ctx)
-        await interaction.response.defer()
-
-
 class Memory(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -152,64 +83,10 @@ class Memory(commands.Cog):
 
         return embed
 
-    # ==========
-    # Commands
-    # ==========
-
-    @commands.command(name="addmemory")
-    async def add_memory(self, ctx: commands.Context, *, text: str):
-        """
-        Save a love memory and show it as embed.
-        Usage: !addmemory We watched a movie together today
-        """
-        if not ctx.guild:
-            await ctx.send("This command can only be used in a server.")
-            return
-
-        message_link = ctx.message.jump_url
-        mem = self._add_memory(
-            guild_id=ctx.guild.id,
-            author_id=ctx.author.id,
-            text=text,
-            message_link=message_link,
-        )
-
-        embed = self._build_memory_embed(mem, ctx.guild)
-        await ctx.send("Memory saved. 💌", embed=embed)
-
-    @commands.command(name="randommemory")
-    async def random_memory(self, ctx: commands.Context):
-        """
-        Show one random saved memory.
-        """
-        if not ctx.guild:
-            await ctx.send("This command can only be used in a server.")
-            return
-
-        guild_memories = self._get_guild_memories(ctx.guild.id)
+    def _build_list_embed(self, guild: discord.Guild, count: int = 5) -> discord.Embed | None:
+        guild_memories = self._get_guild_memories(guild.id)
         if not guild_memories:
-            await ctx.send("No memories saved yet. Use `!addmemory` to add one.")
-            return
-
-        mem = random.choice(guild_memories)
-        embed = self._build_memory_embed(mem, ctx.guild)
-        await ctx.send(embed=embed)
-
-    @commands.command(name="listmemory")
-    async def list_memory(self, ctx: commands.Context, count: int = 5):
-        """
-        List latest N memories (default 5).
-        Usage: !listmemory
-               !listmemory 10
-        """
-        if not ctx.guild:
-            await ctx.send("This command can only be used in a server.")
-            return
-
-        guild_memories = self._get_guild_memories(ctx.guild.id)
-        if not guild_memories:
-            await ctx.send("No memories saved yet. Use `!addmemory` to add one.")
-            return
+            return None
 
         try:
             guild_memories.sort(
@@ -235,7 +112,7 @@ class Memory(commands.Cog):
             except Exception:
                 when_short = created_at or "Unknown time"
 
-            author = ctx.guild.get_member(mem.get("author_id")) if ctx.guild else None
+            author = guild.get_member(mem.get("author_id")) if guild else None
             author_name = author.mention if author else f"User ID {mem.get('author_id')}"
 
             text = mem.get("text", "")
@@ -250,29 +127,221 @@ class Memory(commands.Cog):
                 inline=False,
             )
 
+        return embed
+
+    # ==========
+    # Basic commands (still usable)
+    # ==========
+
+    @commands.command(name="addmemory")
+    async def add_memory_cmd(self, ctx: commands.Context, *, text: str):
+        """CLI version: add memory by command."""
+        if not ctx.guild:
+            await ctx.send("This command can only be used in a server.")
+            return
+
+        mem = self._add_memory(
+            guild_id=ctx.guild.id,
+            author_id=ctx.author.id,
+            text=text,
+            message_link=ctx.message.jump_url,
+        )
+
+        embed = self._build_memory_embed(mem, ctx.guild)
+        await ctx.send("Memory saved. 💌", embed=embed)
+
+    @commands.command(name="randommemory")
+    async def random_memory_cmd(self, ctx: commands.Context):
+        """CLI version: random memory."""
+        if not ctx.guild:
+            await ctx.send("This command can only be used in a server.")
+            return
+
+        guild_memories = self._get_guild_memories(ctx.guild.id)
+        if not guild_memories:
+            await ctx.send("No memories saved yet. Use `!addmemory` or the panel to add one.")
+            return
+
+        mem = random.choice(guild_memories)
+        embed = self._build_memory_embed(mem, ctx.guild)
+        await ctx.send(embed=embed)
+
+    @commands.command(name="listmemory")
+    async def list_memory_cmd(self, ctx: commands.Context, count: int = 5):
+        """CLI version: list memories."""
+        if not ctx.guild:
+            await ctx.send("This command can only be used in a server.")
+            return
+
+        embed = self._build_list_embed(ctx.guild, count=count)
+        if embed is None:
+            await ctx.send("No memories saved yet. Use `!addmemory` or the panel to add one.")
+            return
+
         await ctx.send(embed=embed)
 
     # ==========
-    # Panel command
+    # Panel + modal
     # ==========
 
     @commands.command(name="memorypanel")
     async def memory_panel(self, ctx: commands.Context):
-        """
-        Show a panel with buttons: Add, List, Random.
-        """
+        """Show the interactive Memory Panel."""
+        if not ctx.guild:
+            await ctx.send("This command can only be used in a server.")
+            return
+
         view = MemoryPanelView(self)
         embed = discord.Embed(
             title="💞 Memory Panel",
             description=(
                 "Use the buttons below to manage your memories:\n"
-                "• **Add** – add a new memory\n"
+                "• **Add** – open a modal to add a new memory\n"
                 "• **List** – show latest memories\n"
                 "• **Random** – show a random memory"
             ),
             color=0xffc0e0,
         )
-        await ctx.send(embed=embed, view=view)
+        msg = await ctx.send(embed=embed, view=view)
+        view.message = msg  # store message so view can delete it later
+
+
+class MemoryModal(discord.ui.Modal, title="Add a Memory"):
+    def __init__(self, cog: Memory, interaction: discord.Interaction, panel_message: discord.Message):
+        super().__init__(timeout=300)
+        self.cog = cog
+        self.interaction = interaction
+        self.panel_message = panel_message
+
+        self.memory_text = discord.ui.TextInput(
+            label="Your memory",
+            style=discord.TextStyle.paragraph,
+            placeholder="Write something sweet…",
+            max_length=500,
+            required=True,
+        )
+
+        self.add_item(self.memory_text)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        guild = interaction.guild
+        if guild is None:
+            await interaction.response.send_message("This only works in a server.", ephemeral=True)
+            return
+
+        text = str(self.memory_text.value)
+
+        # Save memory
+        mem = self.cog._add_memory(
+            guild_id=guild.id,
+            author_id=interaction.user.id,
+            text=text,
+            message_link=self.panel_message.jump_url,
+        )
+
+        # Delete old panel message
+        try:
+            await self.panel_message.delete()
+        except discord.HTTPException:
+            pass
+
+        # Show memory embed
+        embed = self.cog._build_memory_embed(mem, guild)
+        await interaction.response.send_message("Memory saved. 💌", embed=embed)
+
+        # Respawn a fresh panel at the bottom
+        view = MemoryPanelView(self.cog)
+        panel_embed = discord.Embed(
+            title="💞 Memory Panel",
+            description=(
+                "Use the buttons below to manage your memories:\n"
+                "• **Add** – open a modal to add a new memory\n"
+                "• **List** – show latest memories\n"
+                "• **Random** – show a random memory"
+            ),
+            color=0xffc0e0,
+        )
+        new_msg = await interaction.followup.send(embed=panel_embed, view=view)
+        view.message = new_msg
+
+
+class MemoryPanelView(discord.ui.View):
+    def __init__(self, cog: Memory):
+        super().__init__(timeout=None)
+        self.cog = cog
+        self.message: discord.Message | None = None
+
+    async def _respawn_panel(self, interaction: discord.Interaction):
+        # Delete old panel message
+        if self.message:
+            try:
+                await self.message.delete()
+            except discord.HTTPException:
+                pass
+
+        # Send new panel
+        new_view = MemoryPanelView(self.cog)
+        embed = discord.Embed(
+            title="💞 Memory Panel",
+            description=(
+                "Use the buttons below to manage your memories:\n"
+                "• **Add** – open a modal to add a new memory\n"
+                "• **List** – show latest memories\n"
+                "• **Random** – show a random memory"
+            ),
+            color=0xffc0e0,
+        )
+        new_msg = await interaction.followup.send(embed=embed, view=new_view)
+        new_view.message = new_msg
+
+    @discord.ui.button(label="Add", style=discord.ButtonStyle.success)
+    async def add_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Open modal to collect memory text
+        if self.message is None:
+            self.message = interaction.message
+        modal = MemoryModal(self.cog, interaction, self.message)
+        await interaction.response.send_modal(modal)
+
+    @discord.ui.button(label="List", style=discord.ButtonStyle.primary)
+    async def list_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        guild = interaction.guild
+        if guild is None:
+            await interaction.response.send_message("This only works in a server.", ephemeral=True)
+            return
+
+        embed = self.cog._build_list_embed(guild, count=5)
+        if embed is None:
+            await interaction.response.send_message(
+                "No memories saved yet. Add one first.",
+                ephemeral=True,
+            )
+            return
+
+        # Show list, then respawn panel
+        await interaction.response.send_message(embed=embed)
+        await self._respawn_panel(interaction)
+
+    @discord.ui.button(label="Random", style=discord.ButtonStyle.secondary)
+    async def random_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        guild = interaction.guild
+        if guild is None:
+            await interaction.response.send_message("This only works in a server.", ephemeral=True)
+            return
+
+        guild_memories = self.cog._get_guild_memories(guild.id)
+        if not guild_memories:
+            await interaction.response.send_message(
+                "No memories saved yet. Add one first.",
+                ephemeral=True,
+            )
+            return
+
+        mem = random.choice(guild_memories)
+        embed = self.cog._build_memory_embed(mem, guild)
+
+        # Show random, then respawn panel
+        await interaction.response.send_message(embed=embed)
+        await self._respawn_panel(interaction)
 
 
 async def setup(bot: commands.Bot):
