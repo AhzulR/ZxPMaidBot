@@ -302,7 +302,7 @@ class MemoryPanelView(discord.ui.View):
         modal = MemoryModal(self.cog, interaction, self.message)
         await interaction.response.send_modal(modal)
 
-    @discord.ui.button(label="List", style=discord.ButtonStyle.primary)
+    @discord.ui.button(label="📃List", style=discord.ButtonStyle.primary)
     async def list_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         guild = interaction.guild
         if guild is None:
@@ -321,7 +321,7 @@ class MemoryPanelView(discord.ui.View):
         await interaction.response.send_message(embed=embed)
         await self._respawn_panel(interaction)
 
-    @discord.ui.button(label="Random", style=discord.ButtonStyle.secondary)
+    @discord.ui.button(label="🎲Random", style=discord.ButtonStyle.secondary)
     async def random_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         guild = interaction.guild
         if guild is None:
