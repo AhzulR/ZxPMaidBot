@@ -37,10 +37,14 @@ class CarouselView(discord.ui.View):
         return embed
 
     async def start(self, interaction: discord.Interaction):
-        # Send the initial message and start optional auto loop
         embed = self.build_embed()
-        self.message = await interaction.response.send_message(embed=embed, view=self)
-        # If using followup, adjust to: self.message = await interaction.followup.send(...)
+
+        # Send initial response
+        await interaction.response.send_message(embed=embed, view=self)
+
+        # Get the actual message object so we can edit it later
+        self.message = await interaction.original_response()
+
         if self.auto_loop:
             self._loop_task = asyncio.create_task(self._auto_advance())
 
