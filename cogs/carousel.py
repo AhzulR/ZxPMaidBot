@@ -39,23 +39,23 @@ class CarouselView(discord.ui.View):
     async def start(self, interaction: discord.Interaction):
         embed = self.build_embed()
 
-        # Send initial response
-        await interaction.response.send_message(embed=embed, view=self)
+        # 1) Acknowledge the slash command (ephemeral OK)
+        await interaction.response.send_message("Opening gallery...", ephemeral=True)
 
-        # Get the actual message object so we can edit it later
-        self.message = await interaction.original_response()
+        # 2) Send a normal message in the channel and store it
+        msg = await interaction.channel.send(embed=embed, view=self)
+        self.message = msg  # this is a discord.Message, not an interaction response
 
+        # 3) Start auto-loop if enabled
         if self.auto_loop:
             self._loop_task = asyncio.create_task(self._auto_advance())
 
     async def _auto_advance(self):
-        # Simple auto-advance loop
         try:
             while True:
                 await asyncio.sleep(self.loop_delay)
                 if self.message is None:
                     break
-                # advance index
                 self.index = (self.index + 1) % len(self.images)
                 embed = self.build_embed()
                 await self.message.edit(embed=embed, view=self)
@@ -63,14 +63,16 @@ class CarouselView(discord.ui.View):
             pass
 
     async def on_timeout(self):
-        # Stop auto loop and disable buttons after timeout
         if self._loop_task and not self._loop_task.done():
             self._loop_task.cancel()
         for child in self.children:
             if isinstance(child, discord.ui.Button):
                 child.disabled = True
         if self.message:
-            await self.message.edit(view=self)
+            try:
+                await self.message.edit(view=self)
+            except discord.HTTPException:
+                pass
 
     @discord.ui.button(label="Previous", style=discord.ButtonStyle.primary)
     async def previous(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -119,7 +121,6 @@ class Carousel(commands.Cog):
 
     @app_commands.command(name="gallery", description="Show a looping image gallery from the gallery channel")
     async def gallery(self, interaction: discord.Interaction):
-        # Ensure we have a guild
         if interaction.guild is None:
             await interaction.response.send_message("This command can only be used in a server.", ephemeral=True)
             return
@@ -132,7 +133,6 @@ class Carousel(commands.Cog):
 
         view = CarouselView(images=images, auto_loop=True, loop_delay=10)
         await view.start(interaction)
-
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Carousel(bot))
